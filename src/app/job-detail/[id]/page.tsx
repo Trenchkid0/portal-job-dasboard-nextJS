@@ -3,6 +3,7 @@ import Link from 'next/link'
 import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Applicants from '@/components/oragnism/Applicants'
+import JobDetail from '@/components/oragnism/JobDetail'
 
 
 type JobDetailPageProps = {}
@@ -37,7 +38,9 @@ export default function JobDetailPage({}: JobDetailPageProps) {
                 <TabsContent value="applicants">
                     <Applicants/>
                 </TabsContent>
-                <TabsContent value="jobDetails">Change your job details here.</TabsContent>
+                <TabsContent value="jobDetails">
+                    <JobDetail/>
+                </TabsContent>
             </Tabs>
     </div>
   )
