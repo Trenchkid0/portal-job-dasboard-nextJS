@@ -10,12 +10,16 @@ import {
   } from "@/components/ui/table"
 import { JOB_APPLICANT_DATA, JOB_LISTING_COLUMNS, JOB_LISTING_DATA } from '@/constants'
 import { Badge } from '@/components/ui/badge'
-import { MoreVerticalIcon } from 'lucide-react'
+import { MoreVerticalIcon, icons } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { useRouter } from 'next/navigation'
+import ButtonActionTable from '@/components/oragnism/ButtonActionTable'
   
 
 type JobListingPageProps = {}
 
 export default function JobListingPage({}: JobListingPageProps) {
+    
   return (
     <div>
         <div className='font-semibold text-3xl'>Job Listing</div>
@@ -56,7 +60,9 @@ export default function JobListingPage({}: JobListingPageProps) {
 								{item.applicants} / {item.needs}
 							</TableCell>
 							<TableCell>
-								<MoreVerticalIcon className='w-4 h-4'/>
+								<ButtonActionTable
+									url={`/job-detail/${item.id}`}
+								/>
 							</TableCell>
                         </TableRow>
                     ))}
