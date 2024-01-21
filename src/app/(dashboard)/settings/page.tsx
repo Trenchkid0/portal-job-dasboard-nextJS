@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { overviewFormSchema } from '@/lib/form-schema'
 import { zodResolver } from '@hookform/resolvers/zod'
+import TeamForm from '@/components/forms/TeamForm'
 
 
 type SettingsProps = {}
@@ -28,7 +29,7 @@ export default function Settings({}: SettingsProps) {
                     <SocialMedia/>
                 </TabsContent>
                 <TabsContent value="teams">
-                    <div>Teams</div>
+                    <TeamForm/>
                 </TabsContent>
         </Tabs>
         
