@@ -4,6 +4,7 @@ import '../../globals.css'
 import SideBar from '@/components/layouts/Sidebar'
 import { Epilogue } from 'next/font/google'
 import Header from '@/components/layouts/Header'
+import { Toaster } from "@/components/ui/toaster"
 
 const epilogue = Epilogue({ subsets: ['latin'] })
 
@@ -20,6 +21,7 @@ export default function RootLayout({
         <main>
           {children}
         </main>
+        <Toaster />
       </body>
     </html>
   )
