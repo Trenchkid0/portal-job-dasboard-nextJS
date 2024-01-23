@@ -14,18 +14,37 @@ import { MoreVerticalIcon, icons } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 import ButtonActionTable from '@/components/oragnism/ButtonActionTable'
+import prisma from '../../../../lib/prisma'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { Job } from '@prisma/client'
+import { dateFormat } from '@/lib/utils'
+import moment from 'moment'
   
 
 type JobListingPageProps = {}
 
-export default function JobListingPage({}: JobListingPageProps) {
+async function getDataJob(){
+    const session = await getServerSession(authOptions);
+    const jobs = prisma.job.findMany({
+        where: {
+            companyId: session?.user.id,
+        }
+    })
+    return jobs;
+}
+
+export default async function JobListingPage({}: JobListingPageProps) {
+
+    const jobs = await getDataJob()
+
+    console.log(jobs);
     
   return (
     <div>
         <div className='font-semibold text-3xl'>Job Listing</div>
         <div className='mt-10'>
             <Table>
-                <TableCaption>A list of your recent invoices.</TableCaption>
                 <TableHeader>
                     <TableRow>
                         {JOB_LISTING_COLUMNS.map((item:string,index:number)=>(
@@ -36,19 +55,19 @@ export default function JobListingPage({}: JobListingPageProps) {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {JOB_LISTING_DATA.map((item:any,index:number)=> (
+                    {jobs.map((item:Job,index:number)=> (
                         <TableRow key={item.roles + index}>
                             <TableCell>
                                 {item.roles}
                             </TableCell>
                             <TableCell>
-                                <Badge>Live</Badge>
+                                {moment(item.datePosted).isBefore(item.dueDate) ? <Badge>Live</Badge> : <Badge variant='destructive'>Abis</Badge>}
                             </TableCell>
                             <TableCell>
-                                {item.datePosted}
+                                {dateFormat(item.datePosted)}
                             </TableCell>
                             <TableCell>
-                                {item.dueDate}
+                                {dateFormat(item.dueDate)}
                             </TableCell>
                             <TableCell>
 									<Badge variant="outline">

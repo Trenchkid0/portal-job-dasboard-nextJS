@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { jobFormSchema } from "@/lib/form-schema";
 import { ArrowLeftIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import Link from "next/navigation"
+import Link, { useRouter } from "next/navigation"
 import {
   Form,
   FormControl,
@@ -33,12 +33,23 @@ import InputSkills from "@/components/oragnism/InputSkills";
 import CKEditor from "@/components/oragnism/CKEditor";
 import InputBenefits from "@/components/oragnism/InputBenefits";
 import { Button } from "@/components/ui/button";
-
+import useSWR from 'swr'
+import { fetcher } from "@/lib/utils";
+import { CategoryJob } from "@prisma/client";
+import { useSession } from "next-auth/react";
+import moment from "moment";
+import { useToast } from "@/components/ui/use-toast";
 
 type PostJobPageProps = {};
 
 export default function PostJobPage({}: PostJobPageProps) {
+  const { data, error, isLoading } = useSWR<CategoryJob[]>("/api/job/categories", fetcher)
+
   const [editorLoaded, setEditorLoaded] = useState<boolean>(false);
+
+  const { data: session } = useSession();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof jobFormSchema>>({
     resolver: zodResolver(jobFormSchema),
@@ -47,8 +58,43 @@ export default function PostJobPage({}: PostJobPageProps) {
     },
   });
 
-  const onSubmit = (val: z.infer<typeof jobFormSchema>) => {
-    console.log(val);
+  const onSubmit = async(val: z.infer<typeof jobFormSchema>) => {
+    try {
+      const body: any = {
+        applicants:0,
+        benefits:val.benefits,
+        categoryId: val.categoryId,
+				companyId: session?.user.id!!,
+        datePosted: moment().toDate(),
+        description: val.jobDescription,
+				dueDate: moment().add(1, "M").toDate(),
+        jobType: val.jobType,
+				needs: 20,
+				niceToHaves: val.niceToHave,
+				requiredSkills: val.requiredSkills,
+				responsibility: val.responsibility,
+				roles: val.roles,
+				salaryFrom: val.salaryFrom,
+				salaryTo: val.salaryTo,
+				whoYouAre: val.whoYouAre,
+      }
+
+      await fetch("/api/job", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+
+      await router.push("/job-listings");
+    } catch (error) {
+
+      toast({
+				title: "Error",
+				description: "Please try again",
+			});
+			console.log(error);
+      
+    }
   };
 
 
@@ -170,9 +216,14 @@ export default function PostJobPage({}: PostJobPageProps) {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="m@example.com">m@example.com</SelectItem>
-                  <SelectItem value="m@google.com">m@google.com</SelectItem>
-                  <SelectItem value="m@support.com">m@support.com</SelectItem>
+                  {data?.map((item: CategoryJob) => (
+												<SelectItem
+													key={item.id}
+													value={item.id}
+												>
+													{item.name}
+												</SelectItem>
+									))}
                 </SelectContent>
               </Select>
               
@@ -184,7 +235,7 @@ export default function PostJobPage({}: PostJobPageProps) {
           
           </FieldInput>
           <FieldInput title="Required Skills" subtitle="Add required skills for the job">
-            <InputSkills form={form} name="Add Skills" label="Add Skills" />
+            <InputSkills form={form} name="requiredSkills" label="Add Skills" />
           </FieldInput>
           <FieldInput title="Job Description"  subtitle="Job titles must be describe one position">
             <CKEditor form={form} name="jobDescription" editorLoaded={editorLoaded}/>

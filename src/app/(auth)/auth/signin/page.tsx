@@ -36,7 +36,6 @@ export default function SigninPage({}: SignInPageProps) {
       ...val,
       redirect:false, 
     })
-    console.log('ini auth' + authenticated?.error);
 
     if (authenticated?.error) {
 			toast({

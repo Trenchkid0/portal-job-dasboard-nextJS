@@ -1,7 +1,10 @@
 
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseClient = createClient(process.env.NEXT_API_PUBLIC_SUPABASE!!, process.env.NEXT_API_PUBLIC_SUPABASE_KEY!!)
+export const supabaseClient = createClient(
+	process.env.NEXT_PUBLIC_SUPABASE_URL!!,
+	process.env.NEXT_PUBLIC_SUPABASE_PUBLIC_KEY!!
+);
 
 const createId = (length: number) => {
 	let result = "";

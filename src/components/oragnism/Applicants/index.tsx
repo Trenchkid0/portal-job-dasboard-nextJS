@@ -9,10 +9,13 @@ import {
 } from "@/components/ui/table";
 import { JOB_APPLICANT_COLUMNS, JOB_APPLICANT_DATA } from "@/constants";
 import ButtonActionTable from "../ButtonActionTable";
+import { Applicant } from '@prisma/client';
 
-type ApplicantsProps = {}
+type ApplicantsProps = {
+	applicants: Applicant[] | undefined,
+}
 
-export default function Applicants({}: ApplicantsProps) {
+export default function Applicants({applicants}: ApplicantsProps) {
   return (
     <Table>
 			<TableHeader>
@@ -24,12 +27,11 @@ export default function Applicants({}: ApplicantsProps) {
 				</TableRow>
 			</TableHeader>
 			<TableBody>
-				{JOB_APPLICANT_DATA && (
+				{applicants && (
 					<>
-						{JOB_APPLICANT_DATA.map((item: any, i: number) => (
+						{applicants.map((item: any, i: number) => (
 							<TableRow key={item.id + i}>
-								<TableCell>{item.name}</TableCell>
-                                <TableCell>{item.appliedDate}</TableCell>
+								<TableCell>{item.user.name}</TableCell>
 								<TableCell>
 									<ButtonActionTable url="" />
 								</TableCell>

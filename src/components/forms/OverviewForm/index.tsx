@@ -1,6 +1,5 @@
 "use client";
 import TitleForm from "@/components/atoms/TitleForm";
-import CustomLoad from "@/components/oragnism/CustomUpload";
 import FieldInput from "@/components/oragnism/FieldInput";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -29,7 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { EMPLOYEE_OPTIONS, LOCATION_OPTIONS, optionType } from "@/constants";
 import { overviewFormSchema } from "@/lib/form-schema";
-import { cn } from "@/lib/utils";
+import { cn, fetcher } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -38,19 +37,85 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import InputSkills from "@/components/oragnism/InputSkills";
 import CKEditor from "@/components/oragnism/CKEditor";
+import useSWR from "swr";
+import { Companyoverview, Industry } from "@prisma/client";
+import CustomUpload from "@/components/oragnism/CustomUpload";
+import { supabaseUploadFile } from "@/lib/supabase";
 
-type OverviewFormProps = {};
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
-export default function OverviewForm({}: OverviewFormProps) {
+
+type OverviewFormProps = {
+  detail:Companyoverview | undefined
+};
+
+export default function OverviewForm({detail}: OverviewFormProps) {
   const [editorLoaded, setEditorLoaded] = useState<boolean>(false);
+
+  const { data: session } = useSession();
+	const { toast } = useToast();
+	const router = useRouter();
+
+  const {data} = useSWR<Industry[]>('/api/company/industry', fetcher)
 
   const form = useForm<z.infer<typeof overviewFormSchema>>({
     resolver: zodResolver(overviewFormSchema),
+    defaultValues: {
+			dateFounded: detail?.dateFounded,
+			description: detail?.description,
+			employee: detail?.employee,
+			image: detail?.image,
+			industry: detail?.industry,
+			location: detail?.location,
+			name: detail?.name,
+			techStack: detail?.techStack,
+			website: detail?.website,
+		},
   });
 
-  const onSubmit = (val: z.infer<typeof overviewFormSchema>) => {
-    console.log(val);
-  };
+  const onSubmit = async(val: z.infer<typeof overviewFormSchema>) => {
+    try {
+			let filename = "";
+
+			if (typeof val.image === "object") {
+				const uploadImg = await supabaseUploadFile(
+					val.image,
+					"company"
+				);
+				filename = uploadImg.filename;
+			} else {
+				filename = val.image;
+			}
+
+			const body = {
+				...val,
+				image: filename,
+				companyId: session?.user.id,
+			};
+
+			await fetch("/api/company/overview", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+			});
+
+			toast({
+				title: "Success",
+				description: "Edit profile success",
+			});
+
+			router.refresh();
+		} catch (error) {
+			await toast({
+				title: "Error",
+				description: "Please try again",
+			});
+
+			console.log(error);
+		}
+	};
 
   useEffect(() => {
     setEditorLoaded(true);
@@ -73,7 +138,7 @@ export default function OverviewForm({}: OverviewFormProps) {
             title="Company Logo"
             subtitle="This image will be shown publicly as company logo."
           >
-            <CustomLoad form={form} name="image" />
+            <CustomUpload form={form} name="image" />
           </FieldInput>
 
           <FieldInput
@@ -188,10 +253,10 @@ export default function OverviewForm({}: OverviewFormProps) {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {LOCATION_OPTIONS.map(
-                            (item: optionType, i: number) => (
-                              <SelectItem key={item.id} value={item.label}>
-                                {item.label}
+                          {data?.map(
+                            (item: Industry) => (
+                              <SelectItem key={item.id} value={item.name}>
+                                {item.name}
                               </SelectItem>
                             )
                           )}

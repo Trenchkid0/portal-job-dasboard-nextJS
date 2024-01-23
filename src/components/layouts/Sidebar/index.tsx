@@ -1,5 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button'
+import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import React from 'react'
 import { AiOutlineHome,AiOutlineMessage,AiOutlineUserAdd,AiOutlineCalendar,AiOutlineSetting,AiOutlineLogout } from "react-icons/ai";
@@ -55,7 +56,7 @@ export default function SideBar({}: SideBarProps) {
                         <AiOutlineSetting className='mr-2 text-lg' />
                         Settings
                     </Button>
-                    <Button variant={'ghost'} className='w-full text-red-500 hover:text-red-500 hover:bg-red-100 justify-start rounded-none ' >
+                    <Button variant={'ghost'} className='w-full text-red-500 hover:text-red-500 hover:bg-red-100 justify-start rounded-none ' onClick={()=> signOut()}>
                         <AiOutlineLogout className='mr-2 text-lg' />
                         Logout
                     </Button>

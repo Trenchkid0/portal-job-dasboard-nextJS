@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { PlusIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
@@ -9,7 +10,8 @@ type HeaderProps = {}
 
 function Header({}: HeaderProps) {
     
-    const router = useRouter()
+    const router = useRouter();
+    const {data:session} = useSession();
 
     const navCreateJobPage = () => router.push('/post-a-job')
 
@@ -17,7 +19,7 @@ function Header({}: HeaderProps) {
     <div className='pb-3 mb-8 border-b flex flex-row items-center justify-between'>
         <div >
             <div>Company</div>
-            <div className='font-semibold'>Twitter</div>
+            <div className='font-semibold'>{session?.user?.name}</div>
         </div>
         <div >
             <Button  onClick={navCreateJobPage} className='rounded-none py-3 px-6'>

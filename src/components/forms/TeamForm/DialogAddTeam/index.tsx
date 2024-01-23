@@ -19,15 +19,50 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Input } from '@/components/ui/input';
 
+import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+
 type DialogAddTeamProps = {}
 
 export default function DialogAddTeam({}: DialogAddTeamProps) {
+    
+	const { data: session } = useSession();
+	const { toast } = useToast();
+	const router = useRouter();
+
     const form = useForm<z.infer<typeof teamFormSchema>>({
 		resolver: zodResolver(teamFormSchema),
 	});
 
-    const onSubmit = (val: z.infer<typeof teamFormSchema>) => {
-        console.log(val);
+    const onSubmit = async(val: z.infer<typeof teamFormSchema>) => {
+        try {
+            const body = {
+				...val,
+				companyId: session?.user.id,
+			};
+
+            await fetch('/api/company/teams',{
+                method: 'POST',
+                headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(body),
+            })
+
+            toast({
+				title: "Success",
+				description: "Add member success",
+			});
+
+			await router.refresh();
+
+        } catch (error) {
+            toast({
+				title: "Error",
+				description: "Please try again",
+			});
+			console.log(error);
+        }
+        
     }
 
    
@@ -85,7 +120,7 @@ export default function DialogAddTeam({}: DialogAddTeamProps) {
                                     <FormItem>
                                         <FormLabel>Instagram</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="@aimyourgoal" {...field} />
+                                            <Input placeholder="www.instagram.com/imyourdead" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>

@@ -1,15 +1,15 @@
 "use client";
 
-// import { supabaseGetPublicUrl } from "@/lib/supabase";
+import { supabaseGetPublicUrl } from "@/lib/supabase";
 import Image from "next/image";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 
-type CustomLoadProps = {
+type CustomUploadProps = {
     form: any;
 	name: string;
 }
 
-export default function CustomLoad({form, name}: CustomLoadProps) {
+export default function CustomUpload({form, name}: CustomUploadProps) {
     const [previewImg, setPreviewImg] = useState("");
 
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -25,19 +25,19 @@ export default function CustomLoad({form, name}: CustomLoadProps) {
 		inputRef.current?.click();
 	};
 
-	// useEffect(() => {
-	// 	async function getImage() {
-	// 		const { publicUrl } = await supabaseGetPublicUrl(
-	// 			form.getValues(name),
-	// 			"company"
-	// 		);
-	// 		setPreviewImg(publicUrl);
-	// 	}
+	useEffect(() => {
+		async function getImage() {
+			const { publicUrl } = await supabaseGetPublicUrl(
+				form.getValues(name),
+				"company"
+			);
+			setPreviewImg(publicUrl);
+		}
 
-	// 	if (form.getValues(name) !== "") {
-	// 		getImage();
-	// 	}
-	// }, []);
+		if (form.getValues(name) !== "") {
+			getImage();
+		}
+	}, []);
   return (
     <div className="inline-flex items-center gap-8">
 			<div>
